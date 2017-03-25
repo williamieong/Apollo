@@ -5,20 +5,25 @@
     "express": "latest",
     "gulp": "latest"
   },
-  "description": "",
+  "description": "Requirements for node",
   "main": "index.js",
   "devDependencies": {},
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
   },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/williamieong/CS411.git"
   },
-  "author": "",
+  "author": "Ben Kincaid",
   "license": "ISC",
   "bugs": {
     "url": "https://github.com/williamieong/CS411/issues"
   },
-  "homepage": "https://github.com/williamieong/CS411#readme"
+  "homepage": "https://github.com/williamieong/CS411#readme",
+  "keywords": [
+    "Spotify",
+    "Soundcloud"
+  ]
 }
