@@ -2,8 +2,10 @@
   "name": "apollo",
   "version": "1.0.0",
   "dependencies": {
-    "express": "latest",
-    "gulp": "latest"
+    "body-parser": "^1.17.1",
+    "express": "^4.15.2",
+    "gulp": "latest",
+    "mongoose": "^4.9.3"
   },
   "description": "Requirements for node",
   "main": "index.js",
