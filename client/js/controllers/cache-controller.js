@@ -15,6 +15,8 @@ app.controller('cacheController', ['$scope', '$resource', function ($scope, $res
   //I think it corresponds to the get function on the server
   Cache.query(function (results) {
     $scope.cache = results;
+    // console.log("This is the current array on the front end")
+    // console.dir($scope.cache)
   });
 
   //cached items
@@ -37,36 +39,48 @@ app.controller('cacheController', ['$scope', '$resource', function ($scope, $res
   $scope.searchAlbums = function () {
       var cache = new Cache();
       cache.name = $scope.cachedName;
-      // console.log(document.getElementById('query').value)
       console.log("In controller, using searchAlbums")
-      // var searchTerm = document.getElementById('query').value
-      console.log(cache.name)
 
-
-
-      $.ajax({
-          url: 'https://api.spotify.com/v1/search',
-          data: {
-              q: cache.name,
-              type: 'album'
-          },
-          success: function (response) {
-              console.log("In searchAlbums");
-              console.dir(response);
-              cache.albums = response;
-              resultsPlaceholder.innerHTML = template(response);
-
-              // Code to test if it hits node
-              console.log("this is cache's albums");
-              console.dir(cache.albums);
-              cache.$save(function (result) {
-              console.log("This is result")
-              console.log(result)
-              $scope.cache.push(result);
-              $scope.cachedName = '';
-      });
+      var found = false;
+      var album;
+      for (i = 0; i < $scope.cache.length; i++) { 
+        if ($scope.cache[i].name == cache.name) { 
+          console.log("We found it")
+          found = true;
+          album = $scope.cache[i];
+          console.log("Setting album")
+          console.log(album)
+          //resultsPlaceholder.innerHTML = template($scope.cache[i]);
+          break;
           }
-      });
+      }
+
+      if (found == true) {
+          $.ajax({},
+          resultsPlaceholder.innerHTML = template(album);
+          );
+      }
+      else {
+        $.ajax({
+            url: 'https://api.spotify.com/v1/search',
+            data: {
+                q: cache.name,
+                type: 'album'
+            },
+            success: function (response) {
+                console.log("In searchAlbums");
+                console.dir(response);
+                cache.albums = response;
+                resultsPlaceholder.innerHTML = template(response);
+
+                // Code to test if it hits node
+                cache.$save(function (result) {
+                $scope.cache.push(result);
+                $scope.cachedName = '';
+        });
+            }
+        });
+    }
 
 
 

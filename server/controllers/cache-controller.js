@@ -4,8 +4,6 @@ var Cache = require('../models/cache');
 module.exports.create = function (req, res) {
 	console.log("request has been made")
 	//create a new object of model type and fill it with requested data
-    // console.log("request body");
-    // console.log(req.body);
 	var cache = new Cache(req.body);
 	//save it into the database
 	cache.save(function (err, result) {
@@ -16,6 +14,7 @@ module.exports.create = function (req, res) {
 //find a request
 module.exports.list = function (req, res) {
   Cache.find({}, function (err, results) {
+    console.log("Getting list")
     res.json(results);
   });
 
