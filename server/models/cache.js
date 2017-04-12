@@ -2,5 +2,5 @@
 var mongoose = require('mongoose');
 
 module.exports = mongoose.model('Cache', {
-  name: String
-});
+  name: String, albums: Object
+});	

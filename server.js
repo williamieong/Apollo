@@ -25,7 +25,7 @@ app.use('/js', express.static(__dirname + '/client/js'));
 
 //REST API
 app.get('/api/cache', cacheController.list);
-// app.post('/api/cache', cacheController.create);
+app.post('/api/cache', cacheController.create);
 
 //Binds socket and port
 app.listen(3000, function() {

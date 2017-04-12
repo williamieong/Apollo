@@ -26,6 +26,7 @@ app.controller('cacheController', ['$scope', '$resource', function ($scope, $res
     var cache = new Cache();
     //this takes data from the html form and stores it in the name attribute for the new entry
     cache.name = $scope.cachedName;
+    // cache.test = "Testing";
     //gives data to the server to be added to the cache
     meetup.$save(function (result) {
       $scope.cache.push(result);
@@ -40,6 +41,9 @@ app.controller('cacheController', ['$scope', '$resource', function ($scope, $res
       console.log("In controller, using searchAlbums")
       // var searchTerm = document.getElementById('query').value
       console.log(cache.name)
+
+
+
       $.ajax({
           url: 'https://api.spotify.com/v1/search',
           data: {
@@ -49,9 +53,25 @@ app.controller('cacheController', ['$scope', '$resource', function ($scope, $res
           success: function (response) {
               console.log("In searchAlbums");
               console.dir(response);
+              cache.albums = response;
               resultsPlaceholder.innerHTML = template(response);
+
+              // Code to test if it hits node
+              console.log("this is cache's albums");
+              console.dir(cache.albums);
+              cache.$save(function (result) {
+              console.log("This is result")
+              console.log(result)
+              $scope.cache.push(result);
+              $scope.cachedName = '';
+      });
           }
       });
+
+
+
+
+
   };
 
 }]);
