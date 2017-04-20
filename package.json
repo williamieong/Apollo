@@ -2,23 +2,30 @@
   "name": "apollo",
   "version": "1.0.0",
   "dependencies": {
-    "express": "latest",
-    "gulp": "latest"
+    "body-parser": "^1.17.1",
+    "express": "^4.15.2",
+    "gulp": "latest",
+    "mongoose": "^4.9.3"
   },
-  "description": "",
+  "description": "Requirements for node",
   "main": "index.js",
   "devDependencies": {},
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
   },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/williamieong/CS411.git"
   },
-  "author": "",
+  "author": "Ben Kincaid",
   "license": "ISC",
   "bugs": {
     "url": "https://github.com/williamieong/CS411/issues"
   },
-  "homepage": "https://github.com/williamieong/CS411#readme"
+  "homepage": "https://github.com/williamieong/CS411#readme",
+  "keywords": [
+    "Spotify",
+    "Soundcloud"
+  ]
 }
