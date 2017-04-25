@@ -15,8 +15,6 @@ app.controller('cacheController', ['$scope', '$resource', function ($scope, $res
   //I think it corresponds to the get function on the server
   Cache.query(function (results) {
     $scope.cache = results;
-    // console.log("This is the current array on the front end")
-    // console.dir($scope.cache)
   });
 
   //cached items
@@ -30,7 +28,6 @@ app.controller('cacheController', ['$scope', '$resource', function ($scope, $res
     var cache = new Cache();
     //this takes data from the html form and stores it in the name attribute for the new entry
     cache.name = $scope.cachedName;
-    // cache.test = "Testing";
     //gives data to the server to be added to the cache
     meetup.$save(function (result) {
       $scope.cache.push(result);
@@ -65,6 +62,7 @@ app.controller('cacheController', ['$scope', '$resource', function ($scope, $res
     });
     console.log("printing array")
     console.dir($scope.videoURLs);
+
     }
 
 

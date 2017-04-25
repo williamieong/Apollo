@@ -33,6 +33,7 @@ var youtubeAppSecret = '4GnbHDbjrLff0tbi25pKh7jh';
 //Tokens
 var userAccessToken = '';
 var userRefreshToken = '';
+var playlists = {};
 
 // Passport session setup.
 //   To support persistent login sessions, Passport needs to be able to
@@ -64,14 +65,9 @@ passport.use(new SpotifyStrategy({
     process.nextTick(function () {
       userAccessToken = accessToken;
       userRefreshToken = refreshToken;
-      // To keep the example simple, the user's spotify profile is returned to
-      // represent the logged-in user. In a typical application, you would want
-      // to associate the spotify account with a user record in your database,
-      // and return that user instead.
       return done(null, profile);
     });
   }));
-//////////////
  
 // Use the YoutubeStrategy within Passport.
 //   Strategies in Passport require a `verify` function, which accept
@@ -83,24 +79,19 @@ passport.use(new YoutubeStrategy({
   callbackURL: 'http://localhost:3000/callback2'
   },
   function(accessToken, refreshToken, profile, done) {
-    // asynchronous verification, for effect...
     process.nextTick(function () {
-      // To keep the example simple, the user's spotify profile is returned to
-      // represent the logged-in user. In a typical application, you would want
-      // to associate the spotify account with a user record in your database,
-      // and return that user instead.
+      userAccessToken = accessToken;
+      userRefreshToken = refreshToken;
       return done(null, profile);
     });
   }));
-//////////////
  
-//when someone makes a request to our home directory, this loads demonstartion.html
+// When someone makes a request to our home directory, this loads demonstration.html
 app.get('/', function (req, res) {
     res.sendFile(__dirname + '/client/views/demonstration.html');
-    //res.render('demonstration.html', { user: req.user });
 });
  
-//TEST FUNCTION FOR PASSPORT AUTH.
+// Spotify Paths
 app.get('/spotify',
   passport.authenticate('spotify', {scope: ['user-read-email', 'user-read-private', 'playlist-read-private', 'playlist-read-collaborative'], showDialog: true}),
   function(req, res){
@@ -111,61 +102,116 @@ app.get('/spotify',
 app.get('/callback',
   passport.authenticate('spotify', { failureRedirect: '/login' }),
   function(req, res) {
-    // console.dir(res);
     res.redirect('/');
   });
 
 app.get('/getPlaylist',
   function(req, res) {
-  //   ajax({
-  //     url: 'https://api.spotify.com/v1/users/williamthehalo/playlists',
-  //     qs: { Scope: 'playlist-read-private' },
-  //     headers: 
-  //       {authorization: 'Bearer ' + userAccessToken},
-  //   success: function (response) {
-  //     console.log("We suceed in getPlaylist");
-  //     console.dir(response);
-  // }
-
-  // });
   var options = { method: 'GET',
   url: 'https://api.spotify.com/v1/users/williamthehalo/playlists',
   qs: { Scope: 'playlist-read-private' },
   headers: 
    { authorization: 'Bearer ' + userAccessToken} };
 
+  request(options, function (error, response, body) {
+    if (error) throw new Error(error);
+
+    playlists.info = body;
+    console.log(playlists.info);
+  });
+
+  }
+   );
+
+app.get('/getPlaylistTracks',
+  function(req, res) {
+  var playlistID = playlists.info.items[0].id;
+  var options = { method: 'GET',
+  url: 'https://api.spotify.com/v1/users/williamthehalo/playlists/' + playlistID + '5tTkRKHnW0uLWEnqQ8CvnW/tracks',
+  qs: { Scope: 'playlist-read-private' },
+  headers: 
+   { authorization: 'Bearer ' + userAccessToken} };
+
+
 request(options, function (error, response, body) {
   if (error) throw new Error(error);
 
   console.log(body);
 });
-
   }
-   );
-/////////////////////////
- 
+);
 
-//TEST FUNCTION FOR PASSPORT YOUTUBE AUTH.
+// Youtube Paths
 app.get('/youtube',
   passport.authenticate('youtube', {scope: "https://www.googleapis.com/auth/youtube", showDialog: true}),
   function(req, res){
 });
+
 app.get('/callback2',
   passport.authenticate('youtube', { failureRedirect: '/login' }),
   function(req, res) {
-    // console.dir(res);
     res.redirect('/');
   });
-/////////////////////////
+
+app.get('/createPlaylist',
+  function(req, res) {
+    var request = require("request");
  
-////This just creates a shortcut for when referreing to /client/js directory
+    var options = { method: 'POST',
+      url: 'https://www.googleapis.com/youtube/v3/playlists',
+      qs:
+       { part: 'snippet, status',
+         access_token: userAccessToken},
+      headers:
+       { 'cache-control': 'no-cache',
+         'content-type': 'application/json' },
+      body:
+       { snippet: { title: 'Test', description: 'test' },
+         status: { privacyStatus: 'public' } },
+      json: true };
+     
+    request(options, function (error, response, body) {
+      if (error) throw new Error(error);
+     
+      console.log(body);
+    });
+  }
+);
+
+app.get('/updatePlaylist',
+  function(req, res) {
+    var request = require("request");
+
+    var options = { method: 'PUT',
+      url: 'https://www.googleapis.com/youtube/v3/playlistItems',
+      qs: 
+       { part: 'snippet, status',
+         access_token: '',
+         userAccessToken: '' },
+      headers: 
+       { 'cache-control': 'no-cache',
+         'content-type': 'application/json' },
+      body: 
+       { snippet: 
+          { playlistId: 'PL9QFx2GaNI-eSrOTKyFi698YI0nHOkz6n',
+            resourceId: { videoId: 'Kgjkth6BRRY', kind: 'youtube#video' } } },
+      json: true };
+
+    request(options, function (error, response, body) {
+      if (error) throw new Error(error);
+
+      console.log(body);
+    });
+});
+ 
+// This just creates a shortcut for when referreing to /client/js directory
 app.use('/js', express.static(__dirname + '/client/js'));
  
-//REST API
+// REST API
 app.get('/api/cache', cacheController.list);
 app.post('/api/cache', cacheController.create);
  
-//Binds socket and port
+// Binds socket and port
 app.listen(3000, function() {
   console.log('I\'m Listening on 3000');
 })
