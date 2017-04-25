@@ -21,6 +21,8 @@ app.controller('cacheController', ['$scope', '$resource', function ($scope, $res
 
   //cached items
   $scope.cache = []
+  $scope.videos = ["Drake Forever", "Run The Jewels", "Adele"]
+  $scope.videoURLs = []
 
   //probably redo
   //this creates a new entry in the chache
@@ -39,53 +41,76 @@ app.controller('cacheController', ['$scope', '$resource', function ($scope, $res
   $scope.searchAlbums = function () {
       var cache = new Cache();
       cache.name = $scope.cachedName;
-      console.log("In controller, using searchAlbums")
+      console.log("In controller, using searchAlbums");
+      console.log(cache.name);
 
-      var found = false;
-      var album;
-      for (i = 0; i < $scope.cache.length; i++) { 
-        if ($scope.cache[i].name == cache.name) { 
-          console.log("We found it")
-          found = true;
-          album = $scope.cache[i];
-          console.log("Setting album")
-          console.log(album)
-          //resultsPlaceholder.innerHTML = template($scope.cache[i]);
-          break;
-          }
-      }
+      for (i = 0; i < $scope.videos.length; i++){
+      $.ajax({
+        url: 'https://www.googleapis.com/youtube/v3/search',
+        data: {
+            q: $scope.videos[i],
+            part: "snippet",
+            key: "AIzaSyCJ07egBshZOxgyg3k2BG5FDTu8oN-uHrY",
+            type: "video"
 
-      if (found == true) {
-          $.ajax({},
-          resultsPlaceholder.innerHTML = template(album);
-          );
-      }
-      else {
-        $.ajax({
-            url: 'https://api.spotify.com/v1/search',
-            data: {
-                q: cache.name,
-                type: 'album'
-            },
-            success: function (response) {
-                console.log("In searchAlbums");
-                console.dir(response);
-                cache.albums = response;
-                resultsPlaceholder.innerHTML = template(response);
+        },
+        success: function (response) {
+            console.log("In Search Album");
+            var firstVideo = response.items[0].id.videoId;
+            console.log("Final answer")
+            console.dir(firstVideo);
+            $scope.videoURLs.push(firstVideo);
+        }
 
-                // Code to test if it hits node
-                cache.$save(function (result) {
-                $scope.cache.push(result);
-                $scope.cachedName = '';
-        });
-            }
-        });
+    });
+    console.log("printing array")
+    console.dir($scope.videoURLs);
     }
 
 
+    //   var found = false;
+    //   var album;
+    //   for (i = 0; i < $scope.cache.length; i++) { 
+    //     if ($scope.cache[i].name == cache.name) { 
+    //       console.log("We found it")
+    //       found = true;
+    //       album = $scope.cache[i];
+    //       console.log("Setting album")
+    //       console.log(album)
+    //       break;
+    //       }
+    //   }
 
+    //   if (found == true) {
+    //     console.log("")
+    //   }
+    //   else {
+    //     $.ajax({
+    //         url: 'https://api.spotify.com/v1/search',
+    //         data: {
+    //             q: cache.name,
+    //             type: 'album'
+    //         },
+    //         success: function (response) {
+    //             console.log("In searchAlbums");
+    //             console.dir(response);
+    //             cache.albums = response;
+    //             resultsPlaceholder.innerHTML = template(response);
 
+    //             // Code to test if it hits node
+    //             cache.$save(function (result) {
+    //             $scope.cache.push(result);
+    //             $scope.cachedName = '';
+    //     });
+    //         }
+    //     });
+    // }
+  };
 
+  $scope.searhVideo = function () {
+    var cache = new Cache();
+    cache.name = $scope.videoName;
+    console.log("In controller, using searchVideo");
   };
 
 }]);

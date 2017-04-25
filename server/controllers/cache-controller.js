@@ -14,7 +14,6 @@ module.exports.create = function (req, res) {
 //find a request
 module.exports.list = function (req, res) {
   Cache.find({}, function (err, results) {
-    console.log("Getting list")
     res.json(results);
   });
 

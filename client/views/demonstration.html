@@ -53,8 +53,27 @@
         <input type="submit" id="search" class="btn btn-primary" value="Search" />
     </form>
     <div id="results"></div>
+
+<!--     <h1>Search for a Video</h1>
+    <p>Type a video name and click on "Search" to see videos from that artist.</p>
+    <form ng-submit="searchVideo()" id="search-form-video">
+        <input type="text" id="videoQuery" value="" class="form-control" placeholder="Type an Video Name" ng-model="videoName"/>
+        <input type="submit" id="videoSearch" class="btn btn-primary" value="Search" />
+    </form>
+    <div id="videoResults"></div> -->
 </div>
 
+<div>
+<a href="/spotify">Login with Spotify TEST</a>
+</div>
+
+<div>
+<a href="/youtube">Login with Youtube TEST</a>
+</div>
+
+<div>
+<a href="/getPlaylist">Get User Playlists</a>
+</div>
 
 <script id="results-template" type="text/x-handlebars-template">
     {{#each albums.items}}
