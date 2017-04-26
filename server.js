@@ -127,9 +127,9 @@ app.get('/getPlaylist',
 
 app.get('/getPlaylistTracks',
   function(req, res) {
-  var playlistID = playlists.info.items[0].id;
+  //var playlistID = playlists.info.items[0].id;
   var options = { method: 'GET',
-  url: 'https://api.spotify.com/v1/users/williamthehalo/playlists/' + playlistID + '5tTkRKHnW0uLWEnqQ8CvnW/tracks',
+  url: 'https://api.spotify.com/v1/users/williamthehalo/playlists/' + '5tTkRKHnW0uLWEnqQ8CvnW/tracks',
   qs: { Scope: 'playlist-read-private' },
   headers: 
    { authorization: 'Bearer ' + spotifyAccessToken} };
@@ -137,8 +137,14 @@ app.get('/getPlaylistTracks',
 
 request(options, function (error, response, body) {
   if (error) throw new Error(error);
+  // console.log("Body");
+  // console.dir(body);
+  playlists.info = JSON.stringify(eval("(" + body + ")"));;
+  console.log("Playlist body");
+  console.log(playlists.info);
+  // console.log(playlists.info);
+  //console.log(playlists.info[0]);
 
-  console.log(body);
 });
   }
 );
