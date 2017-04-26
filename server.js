@@ -29,6 +29,7 @@ var appSecret = '43e183cdcbb24422bd15b5ec77f04d4e';
 //Code for Youtube Passport Login
 var youtubeAppKey = '159716235186-itggb3baeik7ge86bmd3lqptklibnuda';
 var youtubeAppSecret = '4GnbHDbjrLff0tbi25pKh7jh';
+var youtubeAPIKey = 'AIzaSyCJ07egBshZOxgyg3k2BG5FDTu8oN-uHrY';
 
 //Tokens
 var spotifyAccessToken = '';
@@ -132,19 +133,17 @@ app.get('/getPlaylistTracks',
   url: 'https://api.spotify.com/v1/users/williamthehalo/playlists/' + '5tTkRKHnW0uLWEnqQ8CvnW/tracks',
   qs: { Scope: 'playlist-read-private' },
   headers: 
-   { authorization: 'Bearer ' + spotifyAccessToken} };
+   { authorization: 'Bearer ' + "BQD2AFLLzKoaIT1UDb-WwWpbQKqjYCpWngeJG5JC0rasL_jGSy9nKytLLxUkpFJ6ZR1JP_NNx5qFKzsnkAsNnMUIZM69bZIc4atB3MbGeJdZiLbUeF0zfyEVIIzdOyoHyiVZA-VMmB_rAYfxc1d0nuWADfWUyzjnfpdDHuIusICLqV4663ZWL6iY"
+} };
 
 
 request(options, function (error, response, body) {
   if (error) throw new Error(error);
-  // console.log("Body");
-  // console.dir(body);
-  playlists.info = JSON.stringify(eval("(" + body + ")"));;
-  console.log("Playlist body");
-  console.log(playlists.info);
+  playlists.info = JSON.parse(body);
+  // console.log("Playlist body");
   // console.log(playlists.info);
-  //console.log(playlists.info[0]);
-
+  // console.log("TESTING DEREFERNCE");
+  // console.log(playlists.info.items[0]);
 });
   }
 );
@@ -211,6 +210,28 @@ app.get('/updatePlaylist',
 
       console.log(body);
     });
+
+});
+
+app.get('/searchYoutube',
+  function(req, res) {
+  var request = require("request");
+
+  var options = { method: 'GET',
+    url: 'https://www.googleapis.com/youtube/v3/search',
+    qs: 
+     { part: 'snippet',
+       q: 'Run The Jewels',
+       key: youtubeAPIKey,
+       type: 'video' },
+    headers: 
+     { 'cache-control': 'no-cache' } };
+
+  request(options, function (error, response, body) {
+    if (error) throw new Error(error);
+
+    console.log(body);
+  });
 
 });
  
