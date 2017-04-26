@@ -179,8 +179,8 @@ app.get('/createPlaylist',
      
     request(options, function (error, response, body) {
       if (error) throw new Error(error);
-     
-      console.log(body);
+      var obj =  JSON.parse(body);
+      console.log(obj[0]);
     });
   }
 );
