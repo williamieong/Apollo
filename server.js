@@ -31,8 +31,10 @@ var youtubeAppKey = '159716235186-itggb3baeik7ge86bmd3lqptklibnuda';
 var youtubeAppSecret = '4GnbHDbjrLff0tbi25pKh7jh';
 
 //Tokens
-var userAccessToken = '';
-var userRefreshToken = '';
+var spotifyAccessToken = '';
+var spotifyRefreshToken = '';
+var youtubeAccessToken = '';
+var youtubeRefreshToken = '';
 var playlists = {};
 
 // Passport session setup.
@@ -63,8 +65,8 @@ passport.use(new SpotifyStrategy({
   function(accessToken, refreshToken, profile, done) {
     // asynchronous verification, for effect...
     process.nextTick(function () {
-      userAccessToken = accessToken;
-      userRefreshToken = refreshToken;
+      spotifyAccessToken = accessToken;
+      spotifyRefreshToken = refreshToken;
       return done(null, profile);
     });
   }));
@@ -80,8 +82,8 @@ passport.use(new YoutubeStrategy({
   },
   function(accessToken, refreshToken, profile, done) {
     process.nextTick(function () {
-      userAccessToken = accessToken;
-      userRefreshToken = refreshToken;
+      youtubeAccessToken = accessToken;
+      youtubeRefreshToken = refreshToken;
       return done(null, profile);
     });
   }));
@@ -111,7 +113,7 @@ app.get('/getPlaylist',
   url: 'https://api.spotify.com/v1/users/williamthehalo/playlists',
   qs: { Scope: 'playlist-read-private' },
   headers: 
-   { authorization: 'Bearer ' + userAccessToken} };
+   { authorization: 'Bearer ' + spotifyAccessToken} };
 
   request(options, function (error, response, body) {
     if (error) throw new Error(error);
@@ -130,7 +132,7 @@ app.get('/getPlaylistTracks',
   url: 'https://api.spotify.com/v1/users/williamthehalo/playlists/' + playlistID + '5tTkRKHnW0uLWEnqQ8CvnW/tracks',
   qs: { Scope: 'playlist-read-private' },
   headers: 
-   { authorization: 'Bearer ' + userAccessToken} };
+   { authorization: 'Bearer ' + spotifyAccessToken} };
 
 
 request(options, function (error, response, body) {
@@ -161,7 +163,7 @@ app.get('/createPlaylist',
       url: 'https://www.googleapis.com/youtube/v3/playlists',
       qs:
        { part: 'snippet, status',
-         access_token: userAccessToken},
+         access_token: youtubeAccessToken},
       headers:
        { 'cache-control': 'no-cache',
          'content-type': 'application/json' },
@@ -181,14 +183,14 @@ app.get('/createPlaylist',
 app.get('/updatePlaylist',
   function(req, res) {
     console.log("In UpdatePlaylist");
-    console.log(userAccessToken);
+    console.log(youtubeAccessToken);
     var request = require("request");
 
     var options = { method: 'POST',
       url: 'https://www.googleapis.com/youtube/v3/playlistItems',
       qs: 
        { part: 'snippet, status',
-         access_token: userAccessToken},
+         access_token: youtubeAccessToken},
       headers: 
        { 'cache-control': 'no-cache',
          'content-type': 'application/json' },
