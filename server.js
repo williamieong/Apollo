@@ -37,6 +37,8 @@ var spotifyRefreshToken = '';
 var youtubeAccessToken = '';
 var youtubeRefreshToken = '';
 var playlists = {};
+var playlistTracks = {};
+var videoIDS = [];
 
 // Passport session setup.
 //   To support persistent login sessions, Passport needs to be able to
@@ -88,6 +90,82 @@ passport.use(new YoutubeStrategy({
       return done(null, profile);
     });
   }));
+
+// Functions
+var getVideoIDS = function(val, callback) {
+  console.log("in getVideoIDS");
+  // console.log("testing if playlistTracks is populated");
+  // console.log(playlistTracks.info.items);
+  var numVids = playlistTracks.info.items.length;
+  //var vidName = playlistTracks.info.items[0].track.name;
+  // console.log("HERE LOOK HEREEEE");
+  // console.log(vidName);
+  for (i = 0; i < numVids; i++){
+    var vidName = playlistTracks.info.items[i].track.name;
+    var request = require("request");
+    console.log("this is the vidName");
+    console.log(vidName);
+
+    var options = { method: 'GET',
+      url: 'https://www.googleapis.com/youtube/v3/search',
+      qs: 
+       { part: 'snippet',
+         q: vidName,
+         key: youtubeAPIKey,
+         type: 'video' },
+      headers: 
+       { 'cache-control': 'no-cache' } };
+
+    request(options, function (error, response, body) {
+      if (error) throw new Error(error);
+      // console.log("this is the search result");
+      // console.log(body);
+      var firstVideo = JSON.parse(body);
+      var firstVideoId = firstVideo.items[0].id.videoId;
+      //console.log(firstVideo.items[0].id.videoId);
+      videoIDS.push(firstVideoId);
+      console.log("Current videoIDS");
+      console.log(videoIDS);
+    });
+  }
+
+  // Call next function that was passed in
+  callback();
+};
+
+// Need to replace playlist Id from input
+var pushVideos = function(val, callback) {
+  console.log("in pushVideos");
+  for (i = 0; i < videoIDS.length; i++){
+    var request = require("request");
+
+    var options = { method: 'POST',
+      url: 'https://www.googleapis.com/youtube/v3/playlistItems',
+      qs: 
+       { part: 'snippet, status',
+         access_token: youtubeAccessToken},
+      headers: 
+       { 'cache-control': 'no-cache',
+         'content-type': 'application/json' },
+      body: 
+       { snippet: 
+          { playlistId: 'PLReKrXIfPE-UwEkQpCoJpSakqpq71Vxuu',
+            resourceId: { videoId: videoIDS[i], kind: 'youtube#video' } } },
+      json: true };
+
+    request(options, function (error, response, body) {
+      if (error) throw new Error(error);
+    });
+  
+  }
+
+  // Call next function that was passed in
+  callback(); 
+};
+
+
+
+// Express Paths
  
 // When someone makes a request to our home directory, this loads demonstration.html
 app.get('/', function (req, res) {
@@ -128,22 +206,24 @@ app.get('/getPlaylist',
 
 app.get('/getPlaylistTracks',
   function(req, res) {
+  console.log("Getting Playlist Tracks")
   //var playlistID = playlists.info.items[0].id;
   var options = { method: 'GET',
   url: 'https://api.spotify.com/v1/users/williamthehalo/playlists/' + '5tTkRKHnW0uLWEnqQ8CvnW/tracks',
   qs: { Scope: 'playlist-read-private' },
   headers: 
-   { authorization: 'Bearer ' + "BQD2AFLLzKoaIT1UDb-WwWpbQKqjYCpWngeJG5JC0rasL_jGSy9nKytLLxUkpFJ6ZR1JP_NNx5qFKzsnkAsNnMUIZM69bZIc4atB3MbGeJdZiLbUeF0zfyEVIIzdOyoHyiVZA-VMmB_rAYfxc1d0nuWADfWUyzjnfpdDHuIusICLqV4663ZWL6iY"
+   { authorization: 'Bearer ' + spotifyAccessToken
 } };
 
 
 request(options, function (error, response, body) {
+  // console.log(spotifyAccessToken);
   if (error) throw new Error(error);
-  playlists.info = JSON.parse(body);
+  playlistTracks.info = JSON.parse(body);
   // console.log("Playlist body");
   // console.log(playlists.info);
   // console.log("TESTING DEREFERNCE");
-  // console.log(playlists.info.items[0]);
+  //console.log(playlists.info.items[0]);
 });
   }
 );
@@ -230,8 +310,15 @@ app.get('/searchYoutube',
   request(options, function (error, response, body) {
     if (error) throw new Error(error);
 
-    console.log(body);
+    //console.log(body);
   });
+
+
+ getVideoIDS("value", function() {
+  pushVideos("other_value", function() {
+      //All three functions have completed, in order.
+  });
+});
 
 });
  
