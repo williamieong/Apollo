@@ -180,21 +180,22 @@ app.get('/createPlaylist',
 
 app.get('/updatePlaylist',
   function(req, res) {
+    console.log("In UpdatePlaylist");
+    console.log(userAccessToken);
     var request = require("request");
 
-    var options = { method: 'PUT',
+    var options = { method: 'POST',
       url: 'https://www.googleapis.com/youtube/v3/playlistItems',
       qs: 
        { part: 'snippet, status',
-         access_token: '',
-         userAccessToken: '' },
+         access_token: userAccessToken},
       headers: 
        { 'cache-control': 'no-cache',
          'content-type': 'application/json' },
       body: 
        { snippet: 
-          { playlistId: 'PL9QFx2GaNI-eSrOTKyFi698YI0nHOkz6n',
-            resourceId: { videoId: 'Kgjkth6BRRY', kind: 'youtube#video' } } },
+          { playlistId: 'PLReKrXIfPE-UwEkQpCoJpSakqpq71Vxuu',
+            resourceId: { videoId: 'YQHsXMglC9A', kind: 'youtube#video' } } },
       json: true };
 
     request(options, function (error, response, body) {
@@ -202,6 +203,7 @@ app.get('/updatePlaylist',
 
       console.log(body);
     });
+
 });
  
 // This just creates a shortcut for when referreing to /client/js directory
