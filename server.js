@@ -264,7 +264,7 @@ app.get('/', function (req, res) {
 
 app.get('/profile', function (req, res) {
     res.sendFile(__dirname + '/client/views/profile.html');
-    console.log(res.);
+    //console.log(res);
 });
 
 app.get('/demonstration.html', function (req, res) {
