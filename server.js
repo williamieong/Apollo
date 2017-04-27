@@ -366,11 +366,10 @@ app.get('/searchYoutube',
 
   request(options, function (error, response, body) {
     if (error) throw new Error(error);
-    console.log("finished searchYoutube");
+    console.log(body);
+    //console.log("finished searchYoutube");
   });
 
-  // getVideoIDS();
-  // setTimeout(pushVideos, 250);
 
 }); // Closes searchYoutube
  
