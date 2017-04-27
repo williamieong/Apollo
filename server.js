@@ -129,16 +129,9 @@ passport.use(new YoutubeStrategy({
 // Functions
 function getVideoIDS(val, callback) {
   console.log("in getVideoIDS");
-  // console.log("testing if playlistTracks is populated");
-  // console.log(playlistTracks.info.items);
   var numVids = playlistTracks.info.items.length;
-  //var vidName = playlistTracks.info.items[0].track.name;
-  // console.log("HERE LOOK HEREEEE");
-  // console.log(vidName);
   for (i = 0; i < numVids; i++){
     var vidName = playlistTracks.info.items[i].track.name;
-    // console.log("this is the vidName");
-    // console.log(vidName);
 
     var options = { method: 'GET',
       url: 'https://www.googleapis.com/youtube/v3/search',
@@ -152,14 +145,9 @@ function getVideoIDS(val, callback) {
 
     request(options, function (error, response, body) {
       if (error) throw new Error(error);
-      // console.log("this is the search result");
-      // console.log(body);
       var firstVideo = JSON.parse(body);
       var firstVideoId = firstVideo.items[0].id.videoId;
-      //console.log(firstVideo.items[0].id.videoId);
       videoIDS.push(firstVideoId);
-      // console.log("Current videoIDS");
-      // console.log(videoIDS);
     });
   }
 
@@ -291,13 +279,8 @@ app.get('/getPlaylistTracks',
 
 
 request(options, function (error, response, body) {
-  // console.log(spotifyAccessToken);
   if (error) throw new Error(error);
   playlistTracks.info = JSON.parse(body);
-  // console.log("Playlist body");
-  // console.log(playlists.info);
-  // console.log("TESTING DEREFERNCE");
-  //console.log(playlists.info.items[0]);
 });
   }
 );
@@ -381,8 +364,8 @@ app.get('/searchYoutube',
     console.log("finished searchYoutube");
   });
 
-  getVideoIDS();
-  setTimeout(pushVideos, 250);
+  // getVideoIDS();
+  // setTimeout(pushVideos, 250);
 
 }); // Closes searchYoutube
  
