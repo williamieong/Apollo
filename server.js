@@ -74,15 +74,29 @@ passport.use(new SpotifyStrategy({
     process.nextTick(function () {
       spotifyAccessToken = accessToken;
       spotifyRefreshToken = refreshToken;
-      if(db.collection("Users").find({id: profile.id}) == true){
+      db.collection("Users").find({id: profile.id},{$exists: true}).toArray(function(err, doc){
+        if(doc.length!=0)
+        {
           console.log("found user");
-        db.collection("Users").update({id: profile.id},{spotifyToken: spotifyAccessToken, spotifyRefToken: spotifyRefreshToken})
-        
-      }
+          db.collection("Users").update({id: profile.id},{spotifyToken: spotifyAccessToken, spotifyRefToken: spotifyRefreshToken})
+        }
         else {
-            console.log("NEw USER");
-      db.collection("Users").insert({id: profile.id, name: profile.displayName, email: profile.emails[0].value, spotifyToken: spotifyAccessToken, spotifyRefToken: spotifyRefreshToken});}
-      return done(null, profile);
+          console.log("new user");
+          db.collection("Users").insert({id: profile.id, name: profile.displayName, email: profile.emails[0].value, spotifyToken: spotifyAccessToken, spotifyRefToken: spotifyRefreshToken});
+        }
+        return done(null, profile);}
+
+      )
+      
+      // if(db.collection("Users").find({id: profile.id}) == true){
+      //     console.log("found user");
+      //   db.collection("Users").update({id: profile.id},{spotifyToken: spotifyAccessToken, spotifyRefToken: spotifyRefreshToken})
+        
+      // }
+      //   else {
+      //       console.log("NEw USER");
+      // db.collection("Users").insert({id: profile.id, name: profile.displayName, email: profile.emails[0].value, spotifyToken: spotifyAccessToken, spotifyRefToken: spotifyRefreshToken});}
+      // 
     });
   }));
  
