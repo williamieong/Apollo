@@ -27,6 +27,8 @@ db.once('open', function(){
  
 //this allows json objects to be interpreted on the backend
 app.use(bodyParser());
+
+var uid = '';
  
 //Code for Spotify Passport Login
 var appKey = '5aa05f93b5ae4ba7818d08e802c00b60';
@@ -77,13 +79,16 @@ passport.use(new SpotifyStrategy({
       db.collection("Users").find({id: profile.id},{$exists: true}).toArray(function(err, doc){
         if(doc.length!=0)
         {
-          console.log("found user");
+          //console.log("found user");
           db.collection("Users").update({id: profile.id},{id: profile.id, name: profile.displayName, email: profile.emails[0].value, spotifyToken: spotifyAccessToken, spotifyRefToken: spotifyRefreshToken})
         }
         else {
-          console.log("new user");
+          //console.log("new user");
           db.collection("Users").insert({id: profile.id, name: profile.displayName, email: profile.emails[0].value, spotifyToken: spotifyAccessToken, spotifyRefToken: spotifyRefreshToken});
         }
+          uid = profile.emails[0].value;
+          //console.log("cookie is here");
+          //console.log(uid);
         return done(null, profile);}
 
       )
@@ -93,7 +98,7 @@ passport.use(new SpotifyStrategy({
       //   db.collection("Users").update({id: profile.id},{spotifyToken: spotifyAccessToken, spotifyRefToken: spotifyRefreshToken})
         
       // }
-      //   else {
+      //   else {
       //       console.log("NEw USER");
       // db.collection("Users").insert({id: profile.id, name: profile.displayName, email: profile.emails[0].value, spotifyToken: spotifyAccessToken, spotifyRefToken: spotifyRefreshToken});}
       // 
@@ -122,9 +127,17 @@ app.get('/', function (req, res) {
     res.sendFile(__dirname + '/client/views/login.html');
 });
 
+app.get('/profile', function (req, res) {
+    res.sendFile(__dirname + '/client/views/profile.html');
+    console.log(res.);
+});
+
 app.get('/demonstration.html', function (req, res) {
     res.sendFile(__dirname + '/client/views/demonstration.html');
 });
+
+
+///////////////////////////////////////////////////////////////////
  
 // Spotify Paths
 app.get('/spotify',
