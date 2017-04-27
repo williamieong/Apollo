@@ -95,7 +95,7 @@ passport.use(new YoutubeStrategy({
   }));
 
 // Functions
-var getVideoIDS = function(val, callback) {
+function getVideoIDS(val, callback) {
   console.log("in getVideoIDS");
   // console.log("testing if playlistTracks is populated");
   // console.log(playlistTracks.info.items);
@@ -105,9 +105,8 @@ var getVideoIDS = function(val, callback) {
   // console.log(vidName);
   for (i = 0; i < numVids; i++){
     var vidName = playlistTracks.info.items[i].track.name;
-    var request = require("request");
-    console.log("this is the vidName");
-    console.log(vidName);
+    // console.log("this is the vidName");
+    // console.log(vidName);
 
     var options = { method: 'GET',
       url: 'https://www.googleapis.com/youtube/v3/search',
@@ -134,10 +133,8 @@ var getVideoIDS = function(val, callback) {
 
 };
 
-var createPlaylist = function(val, callback) {
+function createPlaylist(val, callback) {
   console.log("in createPlaylist");
-    var request = require("request");
- 
     var options = { method: 'POST',
       url: 'https://www.googleapis.com/youtube/v3/playlists',
       qs:
@@ -160,36 +157,69 @@ var createPlaylist = function(val, callback) {
 
 // Need to replace playlist Id from input
 // inconsistent behavior, does not add the whole playlist, and different videos
-var pushVideos = function(val, callback) {
+var pushVideos = function(val) {
   console.log("in pushVideos");
   console.log("video length", videoIDS.length);
-  var request = require("request");
-  for (i = 0; i < videoIDS.length; i++){
-    console.log("running for video" + i);
-    console.log("pushing" + videoIDS[i])
-    var options = { method: 'POST',
-      url: 'https://www.googleapis.com/youtube/v3/playlistItems',
-      qs: 
-       { part: 'snippet, status',
-         access_token: youtubeAccessToken},
-      headers: 
-       { 'cache-control': 'no-cache',
-         'content-type': 'application/json' },
-      body: 
-       { snippet: 
-          { playlistId: 'PLReKrXIfPE-UwEkQpCoJpSakqpq71Vxuu',
-            resourceId: { videoId: videoIDS[i], kind: 'youtube#video' } } },
-      json: true };
 
-    request(options, function (error, response, body) {
-      console.log("This is the current video id i am trying to push " + options.body.snippet.resourceId.videoId);
-      if (error) throw new Error(error);
-    });
+
+  // for (i = 0; i < videoIDS.length; i++){
+  //   // console.log("running for video" + i);
+  //   // console.log("pushing" + videoIDS[i])
+  //   var options = { method: 'POST',
+  //     url: 'https://www.googleapis.com/youtube/v3/playlistItems',
+  //     qs: 
+  //      { part: 'snippet, status',
+  //        access_token: youtubeAccessToken},
+  //     headers: 
+  //      { 'cache-control': 'no-cache',
+  //        'content-type': 'application/json' },
+  //     body: 
+  //      { snippet: 
+  //         { playlistId: 'PLReKrXIfPE-UwEkQpCoJpSakqpq71Vxuu',
+  //           resourceId: { videoId: videoIDS[i], kind: 'youtube#video' } } },
+  //     json: true };
+
+  //   request(options, function (error, response, body) {
+  //     // console.log("This is the current video id i am trying to push " + options.body.snippet.resourceId.videoId);
+  //     if (error) throw new Error(error);
+  //   });
 
   
+  // }
+  var i = 0;                     //  set your counter to 0
+  var length = videoIDS.length;
+
+  function myLoop () {           //  create a loop function
+     setTimeout(function () {    //  call a 3s setTimeout when the loop is called
+        var options = { method: 'POST',
+        url: 'https://www.googleapis.com/youtube/v3/playlistItems',
+        qs: 
+         { part: 'snippet, status',
+           access_token: youtubeAccessToken},
+        headers: 
+         { 'cache-control': 'no-cache',
+           'content-type': 'application/json' },
+        body: 
+         { snippet: 
+            { playlistId: 'PLReKrXIfPE-UwEkQpCoJpSakqpq71Vxuu',
+              resourceId: { videoId: videoIDS[i], kind: 'youtube#video' } } },
+        json: true };
+
+        request(options, function (error, response, body) {
+          console.log("This is the current video id i am trying to push " + options.body.snippet.resourceId.videoId);
+          if (error) throw new Error(error);
+        });
+
+        i++;                     //  increment the counter
+        if (i < videoIDS.length) {            //  if the counter < 10, call the loop function
+           myLoop();             //  ..  again which will trigger another 
+        }                        //  ..  setTimeout()
+     }, 50)
   }
 
-};
+  myLoop();                      //  start the loop
+
+}; // Ends pushVideo
 
 
 
@@ -267,8 +297,6 @@ app.get('/callback2',
 
 app.get('/createPlaylist',
   function(req, res) {
-    var request = require("request");
- 
     var options = { method: 'POST',
       url: 'https://www.googleapis.com/youtube/v3/playlists',
       qs:
@@ -294,8 +322,6 @@ app.get('/updatePlaylist',
   function(req, res) {
     console.log("In UpdatePlaylist");
     console.log(youtubeAccessToken);
-    var request = require("request");
-
     var options = { method: 'POST',
       url: 'https://www.googleapis.com/youtube/v3/playlistItems',
       qs: 
@@ -321,8 +347,6 @@ app.get('/updatePlaylist',
 app.get('/searchYoutube',
   function(req, res) {
   console.log("in searchYoutube");
-  var request = require("request");
-
   var options = { method: 'GET',
     url: 'https://www.googleapis.com/youtube/v3/search',
     qs: 
@@ -337,6 +361,9 @@ app.get('/searchYoutube',
     if (error) throw new Error(error);
     console.log("finished searchYoutube");
   });
+
+  getVideoIDS();
+  setTimeout(pushVideos, 250);
 
 }); // Closes searchYoutube
  
