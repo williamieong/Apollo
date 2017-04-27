@@ -11,9 +11,11 @@ var http        = require('http'),
     YoutubeStrategy = require('./node_modules/passport-youtube-v3/lib/passport-youtube-v3/index').Strategy,
     cacheController = require('./server/controllers/cache-controller'),
     request = require("request");
+    session = require("express-session")
  
 //Intialization
 var app = express();
+app.use(session({secret: 'Apollo'}));
 app.use(passport.initialize());
 app.use(passport.session());
  
@@ -366,11 +368,11 @@ app.get('/searchYoutube',
 
   request(options, function (error, response, body) {
     if (error) throw new Error(error);
-    console.log(body);
+    // console.log(body);
     //console.log("finished searchYoutube");
   });
 
-
+  console.log(req.session.passport.user.id);
 }); // Closes searchYoutube
  
 // This just creates a shortcut for when referreing to /client/js directory
