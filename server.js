@@ -193,31 +193,6 @@ var pushVideos = function(val) {
   console.log("in pushVideos");
   console.log("video length", videoIDS.length);
 
-
-  // for (i = 0; i < videoIDS.length; i++){
-  //   // console.log("running for video" + i);
-  //   // console.log("pushing" + videoIDS[i])
-  //   var options = { method: 'POST',
-  //     url: 'https://www.googleapis.com/youtube/v3/playlistItems',
-  //     qs: 
-  //      { part: 'snippet, status',
-  //        access_token: youtubeAccessToken},
-  //     headers: 
-  //      { 'cache-control': 'no-cache',
-  //        'content-type': 'application/json' },
-  //     body: 
-  //      { snippet: 
-  //         { playlistId: 'PLReKrXIfPE-UwEkQpCoJpSakqpq71Vxuu',
-  //           resourceId: { videoId: videoIDS[i], kind: 'youtube#video' } } },
-  //     json: true };
-
-  //   request(options, function (error, response, body) {
-  //     // console.log("This is the current video id i am trying to push " + options.body.snippet.resourceId.videoId);
-  //     if (error) throw new Error(error);
-  //   });
-
-  
-  // }
   var i = 0;                     //  set your counter to 0
   var length = videoIDS.length;
 
