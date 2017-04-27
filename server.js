@@ -10,7 +10,6 @@ var http        = require('http'),
     YoutubeStrategy = require('./node_modules/passport-youtube-v3/lib/passport-youtube-v3/index').Strategy,
     cacheController = require('./server/controllers/cache-controller'),
     request = require("request");
-    async = require("async");
  
 //Intialization
 var app = express();
