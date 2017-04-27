@@ -78,7 +78,7 @@ passport.use(new SpotifyStrategy({
         if(doc.length!=0)
         {
           console.log("found user");
-          db.collection("Users").update({id: profile.id},{spotifyToken: spotifyAccessToken, spotifyRefToken: spotifyRefreshToken})
+          db.collection("Users").update({id: profile.id},{id: profile.id, name: profile.displayName, email: profile.emails[0].value, spotifyToken: spotifyAccessToken, spotifyRefToken: spotifyRefreshToken})
         }
         else {
           console.log("new user");
@@ -93,7 +93,7 @@ passport.use(new SpotifyStrategy({
       //   db.collection("Users").update({id: profile.id},{spotifyToken: spotifyAccessToken, spotifyRefToken: spotifyRefreshToken})
         
       // }
-      //   else {
+      //   else {
       //       console.log("NEw USER");
       // db.collection("Users").insert({id: profile.id, name: profile.displayName, email: profile.emails[0].value, spotifyToken: spotifyAccessToken, spotifyRefToken: spotifyRefreshToken});}
       // 
