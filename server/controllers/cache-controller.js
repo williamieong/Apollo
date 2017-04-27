@@ -18,21 +18,3 @@ module.exports.list = function (req, res) {
   });
 
 }
-
-var searchAlbums = function (query) {
-    $.ajax({
-        url: 'https://api.spotify.com/v1/search',
-        data: {
-            q: query,
-            type: 'album'
-        },
-        success: function (response) {
-            //createCacheEntry(response);
-            //cacheController.createCacheEntry(response);
-            console.log("In searchAlbums");
-            //console.log(response);
-            console.dir(response);
-            resultsPlaceholder.innerHTML = template(response);
-        }
-    });
-};

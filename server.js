@@ -10,6 +10,7 @@ var http        = require('http'),
     YoutubeStrategy = require('./node_modules/passport-youtube-v3/lib/passport-youtube-v3/index').Strategy,
     cacheController = require('./server/controllers/cache-controller'),
     request = require("request");
+    async = require("async");
  
 //Intialization
 var app = express();
@@ -39,6 +40,8 @@ var youtubeRefreshToken = '';
 var playlists = {};
 var playlistTracks = {};
 var videoIDS = [];
+//take you there, zero gravity, how we do
+//var videoIDS = [ 'C9slkeFXogU', 'kN7_DVnqwLA', 'CvEs5Dqwul8' ];
 
 // Passport session setup.
 //   To support persistent login sessions, Passport needs to be able to
@@ -124,21 +127,46 @@ var getVideoIDS = function(val, callback) {
       var firstVideoId = firstVideo.items[0].id.videoId;
       //console.log(firstVideo.items[0].id.videoId);
       videoIDS.push(firstVideoId);
-      console.log("Current videoIDS");
-      console.log(videoIDS);
+      // console.log("Current videoIDS");
+      // console.log(videoIDS);
     });
   }
 
-  // Call next function that was passed in
-  callback();
+};
+
+var createPlaylist = function(val, callback) {
+  console.log("in createPlaylist");
+    var request = require("request");
+ 
+    var options = { method: 'POST',
+      url: 'https://www.googleapis.com/youtube/v3/playlists',
+      qs:
+       { part: 'snippet, status',
+         access_token: youtubeAccessToken},
+      headers:
+       { 'cache-control': 'no-cache',
+         'content-type': 'application/json' },
+      body:
+       { snippet: { title: val, description: 'test' },
+         status: { privacyStatus: 'public' } },
+      json: true };
+     
+    request(options, function (error, response, body) {
+      if (error) throw new Error(error);
+     
+      console.log(body);
+    });
 };
 
 // Need to replace playlist Id from input
+// inconsistent behavior, does not add the whole playlist, and different videos
 var pushVideos = function(val, callback) {
   console.log("in pushVideos");
+  console.log("video length", videoIDS.length);
+  var request = require("request");
   for (i = 0; i < videoIDS.length; i++){
-    var request = require("request");
-
+    console.log("running for video" + i);
+    console.log("pushing" + videoIDS[i])
     var options = { method: 'POST',
       url: 'https://www.googleapis.com/youtube/v3/playlistItems',
       qs: 
@@ -154,13 +182,13 @@ var pushVideos = function(val, callback) {
       json: true };
 
     request(options, function (error, response, body) {
+      console.log("This is the current video id i am trying to push " + options.body.snippet.resourceId.videoId);
       if (error) throw new Error(error);
     });
+
   
   }
 
-  // Call next function that was passed in
-  callback(); 
 };
 
 
@@ -200,14 +228,11 @@ app.get('/getPlaylist',
     playlists.info = body;
     console.log(playlists.info);
   });
-
-  }
-   );
+  });
 
 app.get('/getPlaylistTracks',
   function(req, res) {
   console.log("Getting Playlist Tracks")
-  //var playlistID = playlists.info.items[0].id;
   var options = { method: 'GET',
   url: 'https://api.spotify.com/v1/users/williamthehalo/playlists/' + '5tTkRKHnW0uLWEnqQ8CvnW/tracks',
   qs: { Scope: 'playlist-read-private' },
@@ -295,6 +320,7 @@ app.get('/updatePlaylist',
 
 app.get('/searchYoutube',
   function(req, res) {
+  console.log("in searchYoutube");
   var request = require("request");
 
   var options = { method: 'GET',
@@ -309,18 +335,10 @@ app.get('/searchYoutube',
 
   request(options, function (error, response, body) {
     if (error) throw new Error(error);
-
-    //console.log(body);
+    console.log("finished searchYoutube");
   });
 
-
- getVideoIDS("value", function() {
-  pushVideos("other_value", function() {
-      //All three functions have completed, in order.
-  });
-});
-
-});
+}); // Closes searchYoutube
  
 // This just creates a shortcut for when referreing to /client/js directory
 app.use('/js', express.static(__dirname + '/client/js'));

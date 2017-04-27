@@ -105,10 +105,4 @@ app.controller('cacheController', ['$scope', '$resource', function ($scope, $res
     // }
   };
 
-  $scope.searhVideo = function () {
-    var cache = new Cache();
-    cache.name = $scope.videoName;
-    console.log("In controller, using searchVideo");
-  };
-
 }]);
