@@ -6,6 +6,7 @@ var http        = require('http'),
     mongoose    = require('mongoose'),
     fs          = require('fs'),
     passport = require('passport'),
+    assert = require('assert'),
     SpotifyStrategy = require('./node_modules/passport-spotify/lib/passport-spotify/index').Strategy,
     YoutubeStrategy = require('./node_modules/passport-youtube-v3/lib/passport-youtube-v3/index').Strategy,
     cacheController = require('./server/controllers/cache-controller'),
@@ -18,6 +19,11 @@ app.use(passport.session());
  
 //this creates a connection to the database
 mongoose.connect('mongodb://localhost:27017/Apollo');
+var db = mongoose.connection;
+db.on('error', console.error.bind(console, 'connection error to mongoose'));
+db.once('open', function(){
+    console.log("Connected to Mongoose!!!");
+});
  
 //this allows json objects to be interpreted on the backend
 app.use(bodyParser());
@@ -68,6 +74,14 @@ passport.use(new SpotifyStrategy({
     process.nextTick(function () {
       spotifyAccessToken = accessToken;
       spotifyRefreshToken = refreshToken;
+      if(db.collection("Users").find({id: profile.id}) == true){
+          console.log("found user");
+        db.collection("Users").update({id: profile.id},{spotifyToken: spotifyAccessToken, spotifyRefToken: spotifyRefreshToken})
+        
+      }
+        else {
+            console.log("NEw USER");
+      db.collection("Users").insert({id: profile.id, name: profile.displayName, email: profile.emails[0].value, spotifyToken: spotifyAccessToken, spotifyRefToken: spotifyRefreshToken});}
       return done(null, profile);
     });
   }));
@@ -91,6 +105,10 @@ passport.use(new YoutubeStrategy({
  
 // When someone makes a request to our home directory, this loads demonstration.html
 app.get('/', function (req, res) {
+    res.sendFile(__dirname + '/client/views/login.html');
+});
+
+app.get('/demonstration.html', function (req, res) {
     res.sendFile(__dirname + '/client/views/demonstration.html');
 });
  
@@ -105,7 +123,7 @@ app.get('/spotify',
 app.get('/callback',
   passport.authenticate('spotify', { failureRedirect: '/login' }),
   function(req, res) {
-    res.redirect('/');
+    res.redirect('/demonstration.html');
   });
 
 app.get('/getPlaylist',
@@ -157,7 +175,7 @@ app.get('/youtube',
 app.get('/callback2',
   passport.authenticate('youtube', { failureRedirect: '/login' }),
   function(req, res) {
-    res.redirect('/');
+    res.redirect('/demonstration.html');
   });
 
 app.get('/createPlaylist',
