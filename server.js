@@ -47,6 +47,7 @@ var youtubeRefreshToken = '';
 var playlists = {};
 var playlistTracks = {};
 var videoIDS = [];
+var newPlaylistId = '';
 //take you there, zero gravity, how we do
 //var videoIDS = [ 'C9slkeFXogU', 'kN7_DVnqwLA', 'CvEs5Dqwul8' ];
 
@@ -90,9 +91,9 @@ passport.use(new SpotifyStrategy({
           //console.log("new user");
           db.collection("Users").insert({id: profile.id, name: profile.displayName, email: profile.emails[0].value, spotifyToken: spotifyAccessToken, spotifyRefToken: spotifyRefreshToken});
         }
-          uid = profile.emails[0].value;
+          uid = profile.id;
           //console.log("cookie is here");
-          //console.log(uid);
+          console.log(uid);
         return done(null, profile);}
 
       )
@@ -170,7 +171,6 @@ function createPlaylist(val, callback) {
      
     request(options, function (error, response, body) {
       if (error) throw new Error(error);
-     
       console.log(body);
     });
 };
@@ -196,7 +196,7 @@ var pushVideos = function(val) {
            'content-type': 'application/json' },
         body: 
          { snippet: 
-            { playlistId: 'PLReKrXIfPE-UwEkQpCoJpSakqpq71Vxuu',
+            { playlistId: newPlaylistId,
               resourceId: { videoId: videoIDS[i], kind: 'youtube#video' } } },
         json: true };
 
@@ -209,7 +209,7 @@ var pushVideos = function(val) {
         if (i < videoIDS.length) {            //  if the counter < 10, call the loop function
            myLoop();             //  ..  again which will trigger another 
         }                        //  ..  setTimeout()
-     }, 50)
+     }, 100)
   }
 
   myLoop();                      //  start the loop
@@ -299,6 +299,7 @@ app.get('/callback2',
 
 app.get('/createPlaylist',
   function(req, res) {
+    console.log("in express create Playlist");
     var options = { method: 'POST',
       url: 'https://www.googleapis.com/youtube/v3/playlists',
       qs:
@@ -308,41 +309,45 @@ app.get('/createPlaylist',
        { 'cache-control': 'no-cache',
          'content-type': 'application/json' },
       body:
-       { snippet: { title: 'Test', description: 'test' },
+       { snippet: { title: 'Test2', description: 'test' },
          status: { privacyStatus: 'public' } },
       json: true };
      
     request(options, function (error, response, body) {
       if (error) throw new Error(error);
-      var obj =  JSON.parse(body);
-      console.log(obj[0]);
+      newPlaylistId = body.id;
+      // var obj =  JSON.parse(body);
+      // console.log(obj[0]);
     });
   }
 );
 
 app.get('/updatePlaylist',
   function(req, res) {
-    console.log("In UpdatePlaylist");
-    console.log(youtubeAccessToken);
-    var options = { method: 'POST',
-      url: 'https://www.googleapis.com/youtube/v3/playlistItems',
-      qs: 
-       { part: 'snippet, status',
-         access_token: youtubeAccessToken},
-      headers: 
-       { 'cache-control': 'no-cache',
-         'content-type': 'application/json' },
-      body: 
-       { snippet: 
-          { playlistId: 'PLReKrXIfPE-UwEkQpCoJpSakqpq71Vxuu',
-            resourceId: { videoId: 'YQHsXMglC9A', kind: 'youtube#video' } } },
-      json: true };
+    // console.log("In UpdatePlaylist");
+    // console.log(youtubeAccessToken);
+    // var options = { method: 'POST',
+    //   url: 'https://www.googleapis.com/youtube/v3/playlistItems',
+    //   qs: 
+    //    { part: 'snippet, status',
+    //      access_token: youtubeAccessToken},
+    //   headers: 
+    //    { 'cache-control': 'no-cache',
+    //      'content-type': 'application/json' },
+    //   body: 
+    //    { snippet: 
+    //       { playlistId: newPlaylistId,
+    //         resourceId: { videoId: 'YQHsXMglC9A', kind: 'youtube#video' } } },
+    //   json: true };
 
-    request(options, function (error, response, body) {
-      if (error) throw new Error(error);
+    // request(options, function (error, response, body) {
+    //   if (error) throw new Error(error);
 
-      console.log(body);
-    });
+    //   console.log(body);
+    // });
+  getVideoIDS();
+  setTimeout(pushVideos, 500);
+
 
 });
 
