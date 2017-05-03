@@ -38,9 +38,11 @@ var youtubeAppSecret = '4GnbHDbjrLff0tbi25pKh7jh';
 var youtubeAPIKey = 'AIzaSyCJ07egBshZOxgyg3k2BG5FDTu8oN-uHrY';
 
 //Tokens
+var spotifyAccessToken = '';
+var spotifyRefreshToken = '';
 var youtubeAccessToken = '';
 var youtubeRefreshToken = '';
-var playlists = {};
+var playlists = [];
 var playlistTracks = {};
 var videoIDS = [];
 var newPlaylistId = '';
@@ -77,13 +79,16 @@ passport.use(new SpotifyStrategy({
       db.collection("Users").find({id: profile.id},{$exists: true}).toArray(function(err, doc){
         if(doc.length!=0)
         {
-          //console.log("found user");
+          console.log("found user");
           db.collection("Users").update({id: profile.id},{id: profile.id, name: profile.displayName, email: profile.emails[0].value, spotifyToken: accessToken, spotifyRefToken: refreshToken})
         }
         else {
-          //console.log("new user");
+          console.log("new user");
           db.collection("Users").insert({id: profile.id, name: profile.displayName, email: profile.emails[0].value, spotifyToken: accessToken, spotifyRefToken: refreshToken});
         }
+
+        spotifyAccessToken = accessToken;
+        spotifyRefreshToken = refreshToken;
         return done(null, profile);}
 
       )
@@ -201,12 +206,6 @@ var pushVideos = function(val) {
 }; // Ends pushVideo
 
 
-// var setYoutubeToken = function(authToken) {
-
-
-// }; // Ends setYoutubeToken
-
-
 // Express Paths
  
 // When someone makes a request to our home directory, this loads demonstration.html
@@ -245,12 +244,13 @@ app.get('/callback',
 
 app.get('/transferPlaylist',
   function(req, res) {
-    console.log("Testing");
+    getVideoIDS();
+    setTimeout(pushVideos, 500);
   });
 
 app.get('/setSpotifyToken',
   function(req, res) {
-    console.log("Where is this auth token");
+    console.log("Setting Session Spotify Token");
     //console.log(db.collection("Users").find({id: req.session.passport.user.userSpotifyId}));
     //var token = db.collection("Users").find({id: "williamthehalo"}, {spotifyToken: 1}).toArray();
     var answer;
@@ -264,34 +264,39 @@ app.get('/setSpotifyToken',
 
 app.get('/getPlaylist',
   function(req, res) {
+  console.log("Getting Playlists");
   var options = { method: 'GET',
   url: 'https://api.spotify.com/v1/users/' + req.session.passport.user.userSpotifyId +'/playlists',
   qs: { Scope: 'playlist-read-private' },
   headers: 
-   { authorization: 'Bearer ' + req.session.passport.user.spotifyToken} };
+   { authorization: 'Bearer ' + spotifyAccessToken} };
 
   request(options, function (error, response, body) {
     if (error) throw new Error(error);
-
-    playlists.info = body;
-    console.log(playlists.info);
+    playlists.id = body
+    //console.log(req.session.passport.user.playlists);
   });
+
   });
 
 app.get('/getPlaylistTracks',
   function(req, res) {
-  console.log("Getting Playlist Tracks")
+  console.log("Getting Playlist Tracks");
+  // console.log("checking user body");
+  // console.log(req.session.passport.user);
+  console.log(req.session.passport.user.userSpotifyId);
   var options = { method: 'GET',
-  url: 'https://api.spotify.com/v1/users/' + req.session.passport.user.userSpotifyId + '/playlists/' + '5tTkRKHnW0uLWEnqQ8CvnW/tracks',
+  url: 'https://api.spotify.com/v1/users/williamthehalo/playlists/5tTkRKHnW0uLWEnqQ8CvnW/tracks',
   qs: { Scope: 'playlist-read-private' },
   headers: 
-   { authorization: 'Bearer ' + req.session.passport.user.spotifyToken
+   { authorization: 'Bearer ' + spotifyAccessToken
 } };
-
 
 request(options, function (error, response, body) {
   if (error) throw new Error(error);
   playlistTracks.info = JSON.parse(body);
+  console.log(playlistTracks.info);
+
 });
   }
 );
