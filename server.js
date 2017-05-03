@@ -1,5 +1,3 @@
-//async
-//These are the modules which the server is using
 var http        = require('http'),
     express     = require('express'),
     bodyParser  = require('body-parser'),
@@ -29,8 +27,6 @@ db.once('open', function(){
  
 //this allows json objects to be interpreted on the backend
 app.use(bodyParser());
-
-var uid = '';
  
 //Code for Spotify Passport Login
 var appKey = '5aa05f93b5ae4ba7818d08e802c00b60';
@@ -50,8 +46,6 @@ var playlists = {};
 var playlistTracks = {};
 var videoIDS = [];
 var newPlaylistId = '';
-//take you there, zero gravity, how we do
-//var videoIDS = [ 'C9slkeFXogU', 'kN7_DVnqwLA', 'CvEs5Dqwul8' ];
 
 // Passport session setup.
 //   To support persistent login sessions, Passport needs to be able to
@@ -81,6 +75,8 @@ passport.use(new SpotifyStrategy({
   function(accessToken, refreshToken, profile, done) {
     // asynchronous verification, for effect...
     process.nextTick(function () {
+      //Setting variables for user session
+
       spotifyAccessToken = accessToken;
       spotifyRefreshToken = refreshToken;
       db.collection("Users").find({id: profile.id},{$exists: true}).toArray(function(err, doc){
@@ -93,9 +89,6 @@ passport.use(new SpotifyStrategy({
           //console.log("new user");
           db.collection("Users").insert({id: profile.id, name: profile.displayName, email: profile.emails[0].value, spotifyToken: spotifyAccessToken, spotifyRefToken: spotifyRefreshToken});
         }
-          uid = profile.id;
-          //console.log("cookie is here");
-          console.log(uid);
         return done(null, profile);}
 
       )
@@ -254,13 +247,17 @@ app.get('/spotify',
 app.get('/callback',
   passport.authenticate('spotify', { failureRedirect: '/login' }),
   function(req, res) {
+    console.log("Printing from callback");
+    req.session.passport.user.userSpotifyId = req.session.passport.user.id
+    console.log(req.session.passport.user.userSpotifyId);
     res.redirect('/demonstration.html');
   });
 
 app.get('/getPlaylist',
   function(req, res) {
+  console.log(req.session.passport.user);
   var options = { method: 'GET',
-  url: 'https://api.spotify.com/v1/users/williamthehalo/playlists',
+  url: 'https://api.spotify.com/v1/users/' + req.session.passport.user.userSpotifyId +'/playlists',
   qs: { Scope: 'playlist-read-private' },
   headers: 
    { authorization: 'Bearer ' + spotifyAccessToken} };
@@ -277,7 +274,7 @@ app.get('/getPlaylistTracks',
   function(req, res) {
   console.log("Getting Playlist Tracks")
   var options = { method: 'GET',
-  url: 'https://api.spotify.com/v1/users/williamthehalo/playlists/' + '5tTkRKHnW0uLWEnqQ8CvnW/tracks',
+  url: 'https://api.spotify.com/v1/users/' + req.session.passport.user.userSpotifyId + '/playlists/' + '5tTkRKHnW0uLWEnqQ8CvnW/tracks',
   qs: { Scope: 'playlist-read-private' },
   headers: 
    { authorization: 'Bearer ' + spotifyAccessToken
@@ -300,6 +297,9 @@ app.get('/youtube',
 app.get('/callback2',
   passport.authenticate('youtube', { failureRedirect: '/login' }),
   function(req, res) {
+    console.log("Printing from callback 2");
+    req.session.passport.user.userYoutubeId = req.session.passport.user.displayName;
+    console.log(req.session.passport.user.userYoutubeId);
     res.redirect('/demonstration.html');
   });
 
