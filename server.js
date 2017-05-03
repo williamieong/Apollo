@@ -38,8 +38,6 @@ var youtubeAppSecret = '4GnbHDbjrLff0tbi25pKh7jh';
 var youtubeAPIKey = 'AIzaSyCJ07egBshZOxgyg3k2BG5FDTu8oN-uHrY';
 
 //Tokens
-var spotifyAccessToken = '';
-var spotifyRefreshToken = '';
 var youtubeAccessToken = '';
 var youtubeRefreshToken = '';
 var playlists = {};
@@ -76,9 +74,6 @@ passport.use(new SpotifyStrategy({
     // asynchronous verification, for effect...
     process.nextTick(function () {
       //Setting variables for user session
-
-      spotifyAccessToken = accessToken;
-      spotifyRefreshToken = refreshToken;
       db.collection("Users").find({id: profile.id},{$exists: true}).toArray(function(err, doc){
         if(doc.length!=0)
         {
@@ -92,16 +87,6 @@ passport.use(new SpotifyStrategy({
         return done(null, profile);}
 
       )
-      
-      // if(db.collection("Users").find({id: profile.id}) == true){
-      //     console.log("found user");
-      //   db.collection("Users").update({id: profile.id},{spotifyToken: spotifyAccessToken, spotifyRefToken: spotifyRefreshToken})
-        
-      // }
-      //   else {
-      //       console.log("NEw USER");
-      // db.collection("Users").insert({id: profile.id, name: profile.displayName, email: profile.emails[0].value, spotifyToken: spotifyAccessToken, spotifyRefToken: spotifyRefreshToken});}
-      // 
     });
   }));
  
@@ -216,6 +201,11 @@ var pushVideos = function(val) {
 }; // Ends pushVideo
 
 
+// var setYoutubeToken = function(authToken) {
+
+
+// }; // Ends setYoutubeToken
+
 
 // Express Paths
  
@@ -270,9 +260,6 @@ app.get('/setSpotifyToken',
       console.log(req.session.passport.user.spotifyToken);
       res.redirect('/demonstration.html');
     });
-    
-  
-  
   });
 
 app.get('/getPlaylist',
@@ -321,6 +308,16 @@ app.get('/callback2',
     console.log("Printing from callback 2");
     req.session.passport.user.userYoutubeId = req.session.passport.user.displayName;
     console.log(req.session.passport.user.userYoutubeId);
+
+    // // Adding Youtube Token to User Session
+    // db.collection("Users").find({id: profile.id},{$exists: true}).toArray(function(err, doc){
+    //   if(doc.length!=0)
+    //   {
+    //     console.log("Updating User with Youtube Token");
+    //     db.collection("Users").update({id: req.session.passport.user.userSpotifyId}, {$set : {"youtubeToken":1}})
+    //   }
+    // });
+
     res.redirect('/demonstration.html');
   });
 
