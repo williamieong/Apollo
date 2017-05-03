@@ -134,13 +134,17 @@ function getVideoIDS(val, callback) {
   console.log("in getVideoIDS");
   var numVids = playlistTracks.info.items.length;
   for (i = 0; i < numVids; i++){
+    //var test = playlistTracks.info.items[i].artists[0];
+    var artistName = playlistTracks.info.items[i].track.album.artists[0].name;
     var vidName = playlistTracks.info.items[i].track.name;
+    var query = artistName + " " + vidName;
+    console.log(query);
 
     var options = { method: 'GET',
       url: 'https://www.googleapis.com/youtube/v3/search',
       qs: 
        { part: 'snippet',
-         q: vidName,
+         q: query,
          key: youtubeAPIKey,
          type: 'video' },
       headers: 
@@ -311,7 +315,7 @@ app.get('/createPlaylist',
        { 'cache-control': 'no-cache',
          'content-type': 'application/json' },
       body:
-       { snippet: { title: 'Test2', description: 'test' },
+       { snippet: { title: 'CS411 Demonstration i didnt cheat', description: 'test' },
          status: { privacyStatus: 'public' } },
       json: true };
      
@@ -368,11 +372,13 @@ app.get('/searchYoutube',
 
   request(options, function (error, response, body) {
     if (error) throw new Error(error);
-    // console.log(body);
+    console.log(body);
     //console.log("finished searchYoutube");
   });
 
-  console.log(req.session.passport.user.id);
+  //console.log(req.session.passport.user.id);
+  // req.session.passport.user.test = "test text";
+  // console.log(req.session.passport.user.test);
 }); // Closes searchYoutube
  
 // This just creates a shortcut for when referreing to /client/js directory
