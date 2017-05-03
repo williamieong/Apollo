@@ -83,11 +83,11 @@ passport.use(new SpotifyStrategy({
         if(doc.length!=0)
         {
           //console.log("found user");
-          db.collection("Users").update({id: profile.id},{id: profile.id, name: profile.displayName, email: profile.emails[0].value, spotifyToken: spotifyAccessToken, spotifyRefToken: spotifyRefreshToken})
+          db.collection("Users").update({id: profile.id},{id: profile.id, name: profile.displayName, email: profile.emails[0].value, spotifyToken: accessToken, spotifyRefToken: refreshToken})
         }
         else {
           //console.log("new user");
-          db.collection("Users").insert({id: profile.id, name: profile.displayName, email: profile.emails[0].value, spotifyToken: spotifyAccessToken, spotifyRefToken: spotifyRefreshToken});
+          db.collection("Users").insert({id: profile.id, name: profile.displayName, email: profile.emails[0].value, spotifyToken: accessToken, spotifyRefToken: refreshToken});
         }
         return done(null, profile);}
 
@@ -250,17 +250,38 @@ app.get('/callback',
     console.log("Printing from callback");
     req.session.passport.user.userSpotifyId = req.session.passport.user.id
     console.log(req.session.passport.user.userSpotifyId);
-    res.redirect('/demonstration.html');
+    res.redirect('/setSpotifyToken');
+  });
+
+app.get('/transferPlaylist',
+  function(req, res) {
+    console.log("Testing");
+  });
+
+app.get('/setSpotifyToken',
+  function(req, res) {
+    console.log("Where is this auth token");
+    //console.log(db.collection("Users").find({id: req.session.passport.user.userSpotifyId}));
+    //var token = db.collection("Users").find({id: "williamthehalo"}, {spotifyToken: 1}).toArray();
+    var answer;
+    db.collection("Users").find({id: "williamthehalo"}).toArray(function(err, doc) {
+      answer = doc[0].spotifyToken;
+      req.session.passport.user.spotifyToken = answer;
+      console.log(req.session.passport.user.spotifyToken);
+      res.redirect('/demonstration.html');
+    });
+    
+  
+  
   });
 
 app.get('/getPlaylist',
   function(req, res) {
-  console.log(req.session.passport.user);
   var options = { method: 'GET',
   url: 'https://api.spotify.com/v1/users/' + req.session.passport.user.userSpotifyId +'/playlists',
   qs: { Scope: 'playlist-read-private' },
   headers: 
-   { authorization: 'Bearer ' + spotifyAccessToken} };
+   { authorization: 'Bearer ' + req.session.passport.user.spotifyToken} };
 
   request(options, function (error, response, body) {
     if (error) throw new Error(error);
@@ -277,7 +298,7 @@ app.get('/getPlaylistTracks',
   url: 'https://api.spotify.com/v1/users/' + req.session.passport.user.userSpotifyId + '/playlists/' + '5tTkRKHnW0uLWEnqQ8CvnW/tracks',
   qs: { Scope: 'playlist-read-private' },
   headers: 
-   { authorization: 'Bearer ' + spotifyAccessToken
+   { authorization: 'Bearer ' + req.session.passport.user.spotifyToken
 } };
 
 
