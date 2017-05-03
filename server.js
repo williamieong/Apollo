@@ -254,7 +254,7 @@ app.get('/setSpotifyToken',
     //console.log(db.collection("Users").find({id: req.session.passport.user.userSpotifyId}));
     //var token = db.collection("Users").find({id: "williamthehalo"}, {spotifyToken: 1}).toArray();
     var answer;
-    db.collection("Users").find({id: "williamthehalo"}).toArray(function(err, doc) {
+    db.collection("Users").find({id: req.session.passport.user.userSpotifyId}).toArray(function(err, doc) {
       answer = doc[0].spotifyToken;
       req.session.passport.user.spotifyToken = answer;
       console.log(req.session.passport.user.spotifyToken);
